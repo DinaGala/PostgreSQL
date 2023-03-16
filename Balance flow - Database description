@@ -1,0 +1,43 @@
+• Description of the database
+
+classes (showcase with lessons):
+
+o user_id - unique user ID
+o id_class - unique class ID
+o class_start_datetime - lesson start time
+o class_end_datetime - class end time
+o class_removed_datetime - time of deleting a record about this lesson
+o id_teacher - unique teacher identifier
+o class_status - lesson status (successfully held / canceled, etc.)
+o class_status_datetime - the time of putting the status on the lesson
+
+payments (showcase with payments for lessons):
+
+o user_id - unique user ID
+o id_transaction - unique transaction ID
+o operation_name - the name of the performed operation
+o status_name - status of the performed operation (completed / not executed, etc.)
+o classes - number of paid lessons
+o payment_amount - amount paid
+o transaction_datetime - transaction time
+
+students (showcase with a list of students):
+
+o user_id - unique user ID
+o student_sex - user gender
+o geo_cluster - geographic aggregation
+o country_name - short country name
+o region_name - region name
+o email_domain - email domain
+
+teachers (showcase with a list of teachers):
+
+o id_teacher - unique teacher identifier
+o age - age
+o city - teacher's city of residence
+o department - the direction in which the teacher works
+o max_teaching_level - teacher's language level name
+o id_teaching_level - unique identifier of the teacher's language level
+o language_group - teacher's main language
+
+____________________________________________
