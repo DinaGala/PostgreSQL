@@ -1,0 +1,58 @@
+The task is to simulate the change in student balances on a online education platform. 
+Balance is the number of lessons each student has.
+
+To check if everything is in order with our data and to make a list of hypotheses and questions, it is important for us to understand:
+• How many lessons were on the balance of all students for each calendar day
+• How this number changed under the influence of transactions (payments, accruals, corrective write-offs) and lessons (write-offs from the balance as lessons were completed)
+
+We also need to create a table where there will be balances of each student for each day.
+The result should be a query that collects data on the balances of students for each day they live.
+
+____________________________________________
+
+Part 1. Basic Queries
+At the first stage, you need to prepare several basic queries in order to then collect the aggregation you are interested in.
+
+Required requests:
+
+1. Build a table that will store for each student their first date of a successful (with the success status) transaction (from the payments table).
+The resulting table should have two fields: user_id and first_payment_date (the date of the first successful transaction).
+
+2. Collect a table that will store all the days of 2016. To do this, select all dates from the classes table.
+The resulting table should have one field dt (unique lesson dates, no time).
+
+3. Build a table with a list of successful transactions from the payments table. Make an aggregation in which for each client on each date you need to display the sum of the classes field (only for successful transactions).
+The resulting table should have three fields: user_id, payment_date, transaction_balance_change (how many lessons were credited or written off on this day)
+________________________________
+
+Part 2. Using temporary tables
+
+1. Create a CTE for all requests from the first part:
+    o Name the first request first_payments
+    o Name the second query all_dates
+    o Third query name payments_by_dates
+    
+2. Create a CTE called all_dates_by_user, in which combine all_dates and first_payments, which will store all the dates in the life of the student after his first transaction occurred.
+The resulting CTE must contain the following fields: user_id, dt.
+
+3. Look for changes in balances due to the passage of lessons. Create the CTE classes_by_dates by counting the number of lessons per day for each student in the classes table. You should not be interested in introductory lessons and lessons with a status other than success and failed_by_student. The resulting CTE should contain the following fields: user_id, class_date, classes (the number of lessons passed on that day). Moreover, classes must be multiplied by -1 to reflect that - are write-offs from the balance.
+__________________________________
+
+Part 3: Bringing Requests Together
+
+The third step is to use the CTEs from the previous steps and create some new ones to compile a table with student balance changes.
+
+1. Find the balance of students, which is formed only by transactions. To do this, concatenate all_dates_by_user and payments_by_dates so that the dates and user_id match. Use window functions (specifically the sum function) to find the cumulative sum over the ****transaction_balance_change field for all rows up to and including the current one, broken down by user_id and sorted by dt.
+As a result, we get CTE payments_by_dates_cumsum with the fields: user_id, dt, transaction_balance_change , transaction_balance_change_cs(cumulative amount by transaction_balance_change). When calculating the cumulative sum, you can replace empty values with zeros.
+
+2. By analogy with the already completed step for payments, create CTE classes_by_dates_dates_cumsum to store the cumulative sum of the number of lessons completed. To do this, join the tables all_dates_by_user and classes_by_dates so that the dates and user_id match. Use window expressions (sum function) to find the cumulative sum over the classes field for all rows up to and including the current one, broken down by user_id and sorted by dt.
+As a result, we get CTE classes_by_dates_dates_cumsum with fields: user_id, dt, classes , classes_cs(cumulative sum over classes). When calculating the cumulative sum, it is imperative to replace empty values with zeros.
+
+3. Create CTE balances **** with each student's calculated balances. To do this, join the payments_by_dates_cumsum **** and classes_by_dates_dates_cumsum tables so that the dates and user_id match.
+As a result, we get *CTE *****balances **** with the following fields: user_id, dt, transaction_balance_change, transaction_balance_change_cs, classes, classes_cs, balance (classes_cs + transaction_balance_change_cs).
+
+4. Select top 1000 rows from CTE balances sorted by user_id and dt. Look at the changes in student balances. What questions should you ask data engineers and owners of the payments table?
+
+5. See how the total number of lessons has changed on student balance sheets. To do this, sum the fields transaction_balance_change, transaction_balance_change_cs, classes, classes_cs, balance from CTE balances grouped and sorted by dt.
+
+6. Create a visualization (line chart) of the final result. What conclusions can you draw from the resulting visualization?
